@@ -1,16 +1,18 @@
-FROM golang:1.23.5-alpine3.21
+# ベースイメージ
+FROM golang:1.19-alpine
 
-# 作業ディレクトリの設定
+# 作業ディレクトリ
 WORKDIR /usr/src/app
 
-# 必要なパッケージをインストール
-RUN apk add --no-cache git gcc libc-dev
+# モジュール依存関係をコピーしてダウンロード
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Air をインストール
-RUN go install github.com/air-verse/air@latest
+# アプリケーションコードをコピー
+COPY . .
 
-# 必要なポートを公開
-EXPOSE 1323
+# アプリケーションをビルド
+RUN go build -o app
 
-# アプリケーションを実行
-CMD ["air"]
+# サーバーの実行
+CMD ["./app"]
